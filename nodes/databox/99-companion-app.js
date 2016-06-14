@@ -20,8 +20,6 @@ var client;
 // Sample Node-RED node file
 var sendmessage = function(msg){
     try{
-        console.log("publishing");
-        console.log(msg.payload);
         client.publish('webapp', JSON.stringify(msg.payload));
     }catch(err){
         console.log(err);
@@ -58,10 +56,6 @@ module.exports = function(RED) {
                 view: 'list', 
                 data: m.payload, //{keys: Object.keys(m.payload.values[0]), rows: m.payload.values}
             }
-
-            console.log("sending");
-            console.log(msg);
-
             sendmessage(msg);
         });
 

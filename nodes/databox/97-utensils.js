@@ -35,7 +35,7 @@ module.exports = function(RED) {
         client.on('message', (topic, message) => {  
             try {
                 var msg = {};
-                msg.name = node.name || "utensils datastore";
+                msg.name = node.name || "utensils";
                 msg.payload = JSON.parse(message.toString());
                 node.send(msg);                
             }
