@@ -25,7 +25,7 @@ module.exports = function(RED) {
        	this.tag = n.tag;       
         
         RED.nodes.createNode(this,n);
-		
+		//mosquitto
         var client = mqtt.connect('mqtt://mosquitto:1883');
 
        
