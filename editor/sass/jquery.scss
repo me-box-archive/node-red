@@ -44,7 +44,8 @@
     @include component-shadow;
 }
 .ui-dialog .ui-dialog-content {
-    padding: 25px 25px 10px 25px;
+   /* padding: 5px 25px 10px 25px;*/
+   padding: 0px;
 }
 .ui-dialog .ui-dialog-title {
     width: auto;
@@ -74,7 +75,8 @@
     float: none;
 }
 .ui-dialog .ui-dialog-buttonpane {
-    padding: .3em 1em .5em 1em;
+   /* padding: .3em 1em .5em 1em;*/
+  padding: 0px;
 }
 
 .ui-spinner {

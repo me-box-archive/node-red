@@ -21,15 +21,19 @@ module.exports = function(RED) {
   
     function Temperature(n) {
         // Create a RED node
+        this.description = n.description;
+       	this.tag = n.tag;       
+        
         RED.nodes.createNode(this,n);
-
+		
         var client = mqtt.connect('mqtt://mosquitto:1883');
 
        
         var node = this;
-
+		
         client.on('connect', () => {  
-            client.subscribe('temperature/TA')
+            console.log("subscribing to temperature/" + node.tag); 
+            client.subscribe('temperature/' + node.tag)
         })
 
         client.on('message', (topic, message) => {  
@@ -46,7 +50,8 @@ module.exports = function(RED) {
         });
 
         this.on("close", function() {
-            client.unsubscribe('temperature/TA')
+        	console.log("unsubscribing from temperature/" + node.tag);
+            client.unsubscribe('temperature/' + node.tag)
         });
     }
 

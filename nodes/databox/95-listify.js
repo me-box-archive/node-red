@@ -15,9 +15,30 @@
  **/
 
 // If you use this as a template, update the copyright with your own name.
+
+
+var _extractkeys = function(payload){
+	if (payload.values){
+		return Object.keys(payload.values.reduce(function(acc, obj){
+          	return Object.keys(obj).reduce(function(acc, key){
+          			acc[key] = true;
+          			return acc;
+          	}, acc);
+        }, {}));
+    }
+    return Object.keys(payload);
+}
+
+var _extractdata = function(payload){
+	return payload.values ? payload.values : [payload];
+}
+
 module.exports = function(RED) {
     "use strict";
    
+   
+    //Listify assumes that the incoming object with have a payload that either has
+    //a single object, or had an objet with a values array
    
     function Listify(n) {
         // Create a RED node
@@ -27,7 +48,7 @@ module.exports = function(RED) {
 		var keys = [];
 		var ticks = {};
         var node = this;
-		var TICK_TTL;
+		var TICK_TTL = 2;
 		
 		this.on('input', function (msg) {
           	
@@ -36,23 +57,20 @@ module.exports = function(RED) {
           		//collect list of unique keys of objects contained in the payload values array.  Could
           		//assume that all objects will have same attributes and just pull out keys from the
           		//first element, but probably better to pick up all.
-          		var newkeys = Object.keys(msg.payload.values.reduce(function(acc, obj){
-          			return Object.keys(obj).reduce(function(acc, key){
-          				acc[key] = true;
-          				return acc;
-          			}, acc);
-          		}, {}));
           		
+          		var newkeys = _extractkeys(msg.payload);
+          		 
           		//combine current set of keys with new keys discovered above
           		keys = keys.concat(newkeys.filter(function (item) {
     					return keys.indexOf(item) < 0;
 				}));
+          		
           	}
           	
-          	TICK_TTL = Math.max(Object.keys(sources).length * 2, 2);
+          	TICK_TTL = Math.max(Object.keys(sources).length * 2, TICK_TTL);
           	
           	//remember last set of values for this data source
-          	sources[msg.payload.id] = msg.payload.values;
+          	sources[msg.payload.id] = _extractdata(msg.payload);
           	
         
         	//record how many ticks (a tick === datasource event);
