@@ -26,7 +26,7 @@ module.exports = function(RED) {
         
         RED.nodes.createNode(this,n);
 		//mosquitto
-        var client = mqtt.connect('mqtt://localhost:1883');
+        var client = mqtt.connect('mqtt://mosquitto:1883');
 
 		console.log(client);
        
