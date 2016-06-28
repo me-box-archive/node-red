@@ -42,7 +42,7 @@ module.exports = function(RED) {
                 var msg = {};
                 msg.name = node.name || "temperature datastore";
                 msg.payload = JSON.parse(message.toString());
-                console.log(msg);
+                
                 node.send(msg);                
             }
             catch(err){
