@@ -53,7 +53,7 @@ module.exports = function(RED) {
             msg.payload = {
                 id:   node.id,
                 name: node.name || "app", 
-                view: 'list', 
+                view: m.type || "text", 
                 data: m.payload, //{keys: Object.keys(m.payload.values[0]), rows: m.payload.values}
             }
             sendmessage(msg);

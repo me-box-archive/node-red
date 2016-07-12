@@ -124,6 +124,8 @@ module.exports = function(RED) {
           		return acc.concat(sources[key]);
           	},[]);
           	
+          	msg.type = "list";
+          	
           	msg.payload = {
           		timestamp: Date.now(),
           		keys:keys,
