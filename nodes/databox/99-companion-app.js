@@ -36,7 +36,7 @@ module.exports = function(RED) {
     function CompanionApp(n) {
         // Create a RED node
         RED.nodes.createNode(this,n);
-
+		//'mqtt://mosquitto:1883'
         client = mqtt.connect('mqtt://mosquitto:1883');
 
         // Store local copies of the node configuration (as defined in the .html)

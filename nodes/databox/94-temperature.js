@@ -27,8 +27,6 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,n);
 		//mosquitto
         var client = mqtt.connect('mqtt://mosquitto:1883');
-
-		console.log(client);
        
         var node = this;
 		
@@ -42,7 +40,6 @@ module.exports = function(RED) {
                 var msg = {};
                 msg.name = node.name || "temperature datastore";
                 msg.payload = JSON.parse(message.toString());
-                
                 node.send(msg);                
             }
             catch(err){
