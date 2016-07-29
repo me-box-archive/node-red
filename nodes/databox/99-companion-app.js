@@ -16,7 +16,7 @@
 
 // If you use this as a template, update the copyright with your own name.
 var client;
-var MQTT_APP_CHANNEL = 'testApp';
+var MQTT_APP_CHANNEL = 'webapp';
 
 // Sample Node-RED node file
 var sendmessage = function(msg, appId){
