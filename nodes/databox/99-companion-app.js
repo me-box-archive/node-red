@@ -16,11 +16,12 @@
 
 // If you use this as a template, update the copyright with your own name.
 var client;
+var MQTT_APP_CHANNEL = 'testApp';
 
 // Sample Node-RED node file
-var sendmessage = function(msg){
+var sendmessage = function(msg, appId){
     try{
-        client.publish('webapp', JSON.stringify(msg.payload));
+        client.publish(MQTT_APP_CHANNEL, JSON.stringify(msg));
     }catch(err){
         console.log(err);
     }
@@ -40,8 +41,8 @@ module.exports = function(RED) {
         client = mqtt.connect('mqtt://mosquitto:1883');
 
         // Store local copies of the node configuration (as defined in the .html)
-        this.topic = n.topic;
-
+        this.appId = n.appId;
+		console.log("websocket roomId " + this.appId);
         // copy "this" object in case we need it in context of callbacks of other functions.
         var node = this;
 
@@ -50,11 +51,14 @@ module.exports = function(RED) {
 
             var msg = {}
 
+			msg.channel = node.appId;
+			
             msg.payload = {
                 id:   node.id,
                 name: node.name || "app", 
                 view: m.type || "text", 
                 data: m.payload, //{keys: Object.keys(m.payload.values[0]), rows: m.payload.values}
+            	channel: node.appId, //the websocket room that will receive the msg
             }
             sendmessage(msg);
         });
