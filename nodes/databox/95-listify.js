@@ -38,7 +38,7 @@ module.exports = function(RED) {
    
    
     //Listify assumes that the incoming object with have a payload that either has
-    //a single object, or had an objet with a values array
+    //a single object, or had an object with a values array
    
     function Listify(n) {
         // Create a RED node

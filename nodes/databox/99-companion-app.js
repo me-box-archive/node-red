@@ -1,5 +1,5 @@
 /**
- * Copyright 2014 IBM Corp.
+ * Copyright 2016 Tom Lodge
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,15 @@
  * limitations under the License.
  **/
 
-// If you use this as a template, update the copyright with your own name.
+
 var client;
 var MQTT_APP_CHANNEL = 'webapp';
 
 // Sample Node-RED node file
 var sendmessage = function(msg, appId){
+	console.log("sending message");
+	console.log(msg);
+	
     try{
         client.publish(MQTT_APP_CHANNEL, JSON.stringify(msg));
     }catch(err){
@@ -38,7 +41,7 @@ module.exports = function(RED) {
         // Create a RED node
         RED.nodes.createNode(this,n);
 		//'mqtt://mosquitto:1883'
-        client = mqtt.connect('mqtt://mosquitto:1883');
+        client = mqtt.connect('mqtt://localhost:1883');
 
         // Store local copies of the node configuration (as defined in the .html)
         this.appId = n.appId;
