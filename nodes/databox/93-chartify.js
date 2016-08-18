@@ -36,23 +36,22 @@ var _extractdata = function(payload){
 module.exports = function(RED) {
     "use strict";
    
-   
-    //Listify assumes that the incoming object with have a payload that either has
-    //a single object, or had an object with a values array
-   
     function Chartify(n) {
         // Create a RED node
         RED.nodes.createNode(this,n);
         
         var node = this;
-		this.xtype = n.xtype.type,
-		this.xsource = n.xtype.source,
+        
+        console.log(node);
+        
+		this.xtype = n.xtype ? n.xtype.type : null,
+		this.xsource = n.xtype ? n.xtype.source: null,
 		
-		this.ytype = n.ytype.type,
-		this.ysource = n.ytype.source,
+		this.ytype = n.ytype ? n.ytype.type : null,
+		this.ysource = n.ytype ? n.ytype.source : null,
 		this.chart = n.chart;
 		
-		const initmsg =	{type:"chart",  payload:{
+		const initmsg =	{type:this.chart,  payload:{
 			type:'init',
 			chart: this.chart,
 			xscale: 'auto',
@@ -79,16 +78,16 @@ module.exports = function(RED) {
   			payload.type = 'data';      	
           	
           	
-          	if (msg.name === this.xsource){
+          	if (this.xtype && msg.name === this.xsource){
           		payload.x = msg.payload[this.xtype];
           	}
           	
-          	if (msg.name === this.ysource){
+          	if (this.ytype && msg.name === this.ysource){
           		payload.y = Number(msg.payload[this.ytype]);
           	}
           	
           	console.log({type:'chart', payload:payload});
-          	node.send({type:'chart', payload:payload});
+          	node.send({type:this.chart, payload:payload});
         
         });
         
