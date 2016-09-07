@@ -14,9 +14,6 @@
  * limitations under the License.
  **/
 
-// If you use this as a template, update the copyright with your own name.
-
-
 var _extractkeys = function(payload){
 	if (payload.values){
 		return Object.keys(payload.values.reduce(function(acc, obj){
@@ -42,7 +39,7 @@ module.exports = function(RED) {
         
         var node = this;
         
-        console.log(node);
+   
         
 		this.xtype = n.xtype ? n.xtype.type : null,
 		this.xsource = n.xtype ? n.xtype.source: null,
@@ -68,7 +65,7 @@ module.exports = function(RED) {
 		this.on('input', function (msg) {
         	
         	if (!init){
-        		node.send(initmsg);
+        		//node.send(initmsg);
         		init = true;
         	}  	
           	
@@ -86,8 +83,8 @@ module.exports = function(RED) {
           		payload.y = Number(msg.payload[this.ytype]);
           	}
           	
-          	console.log({type:'chart', payload:payload});
-          	node.send({type:this.chart, payload:payload});
+     		
+          	node.send({type:this.chart, sourceId: node.id, payload:payload});
         
         });
         

@@ -20,9 +20,6 @@ var MQTT_APP_CHANNEL = 'webapp';
 
 // Sample Node-RED node file
 var sendmessage = function(msg, appId){
-	console.log("sending message");
-	console.log(msg);
-	
     try{
         client.publish(MQTT_APP_CHANNEL, JSON.stringify(msg));
     }catch(err){
@@ -45,22 +42,35 @@ module.exports = function(RED) {
 
         // Store local copies of the node configuration (as defined in the .html)
         this.appId = n.appId;
-		console.log("websocket roomId " + this.appId);
+		
         // copy "this" object in case we need it in context of callbacks of other functions.
         var node = this;
 
         // respond to inputs....
         this.on('input', function (m) {
-
+	
             var msg = {}
-
+			console.log(m);
+			
 			msg.channel = node.appId;
 			
+			msg.sourceId = m.sourceId;
+            
+            if (node.id === "10f01984.27b5e6"){
+            	msg.layout = [
+            					["55b1972b.acd928","d3720dfb.e41e2"]
+            				 ];
+            }else{
+            	msg.layout = [
+            					["55b1972b.acd928"],
+            				  	["d3720dfb.e41e2"]
+            				];
+            } 
             msg.payload = {
                 id:   node.id,
                 name: node.name || "app", 
                 view: m.type || "text", 
-                data: m.payload, //{keys: Object.keys(m.payload.values[0]), rows: m.payload.values}
+                data: m.payload, 
             	channel: node.appId, //the websocket room that will receive the msg
             }
             sendmessage(msg);

@@ -14,8 +14,6 @@
  * limitations under the License.
  **/
 
-// If you use this as a template, update the copyright with your own name.
-
 
 var _extractkeys = function(payload){
 	if (payload.values){
@@ -125,6 +123,7 @@ module.exports = function(RED) {
           	},[]);
           	
           	msg.type = "list";
+          	msg.sourceId = node.id;
           	
           	msg.payload = {
           		timestamp: Date.now(),
