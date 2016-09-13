@@ -47,7 +47,7 @@ module.exports = function(RED) {
         // copy "this" object in case we need it in context of callbacks of other functions.
         var node = this;
 		
-		var fallbackId = 1+Math.random()*42949433295).toString(16);
+		var fallbackId = (1+Math.random()*42949433295).toString(16);
 		
 		let init = false;
         // respond to inputs....
