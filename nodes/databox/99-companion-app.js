@@ -19,7 +19,7 @@ var client;
 var MQTT_APP_CHANNEL = 'webapp';
 
 // Sample Node-RED node file
-var sendmessage = function(msg, appId){
+var sendmessage = function(msg){
     try{
         client.publish(MQTT_APP_CHANNEL, JSON.stringify(msg));
     }catch(err){
@@ -38,34 +38,30 @@ module.exports = function(RED) {
         // Create a RED node
         RED.nodes.createNode(this,n);
 		//'mqtt://mosquitto:1883'
-        client = mqtt.connect('mqtt://localhost:1883');
+        client = mqtt.connect('mqtt://mosquitto:1883');
 
         // Store local copies of the node configuration (as defined in the .html)
         this.appId = n.appId;
+		this.layout = n.layout;
 		
         // copy "this" object in case we need it in context of callbacks of other functions.
         var node = this;
-
+		
+		let init = false;
         // respond to inputs....
         this.on('input', function (m) {
-	
+			
             var msg = {}
-			console.log(m);
-			
+			if (!init){
+				
+        		sendmessage({channel:node.appId, type:"control", payload:{command:"reset"}});
+        		init = true;
+        	}  	
 			msg.channel = node.appId;
-			
 			msg.sourceId = m.sourceId;
+			msg.type = "data";
+            msg.layout = node.layout;// || [[]];
             
-            if (node.id === "10f01984.27b5e6"){
-            	msg.layout = [
-            					["55b1972b.acd928","d3720dfb.e41e2"]
-            				 ];
-            }else{
-            	msg.layout = [
-            					["55b1972b.acd928"],
-            				  	["d3720dfb.e41e2"]
-            				];
-            } 
             msg.payload = {
                 id:   node.id,
                 name: node.name || "app", 

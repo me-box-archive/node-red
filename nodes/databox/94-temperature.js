@@ -26,7 +26,7 @@ module.exports = function(RED) {
         
         RED.nodes.createNode(this,n);
 		//mosquitto
-        var client = mqtt.connect('mqtt://localhost:1883');
+        var client = mqtt.connect('mqtt://mosquitto:1883');
        
         var node = this;
 		
@@ -37,10 +37,11 @@ module.exports = function(RED) {
 
         client.on('message', (topic, message) => {  
             try {
-                var msg = {};
-                msg.name = node.name || "temperature";
-                msg.payload = JSON.parse(message.toString());
-                node.send(msg);                
+                node.send({
+                	name: node.name || "temperature",
+                	type: "temperature",
+                	payload: JSON.parse(message.toString()),
+                });                
             }
             catch(err){
                 console.log(err);

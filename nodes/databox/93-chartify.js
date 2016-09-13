@@ -39,8 +39,6 @@ module.exports = function(RED) {
         
         var node = this;
         
-   
-        
 		this.xtype = n.xtype ? n.xtype.type : null,
 		this.xsource = n.xtype ? n.xtype.source: null,
 		
@@ -48,41 +46,87 @@ module.exports = function(RED) {
 		this.ysource = n.ytype ? n.ytype.source : null,
 		this.chart = n.chart;
 		
-		const initmsg =	{type:this.chart,  payload:{
-			type:'init',
-			chart: this.chart,
-			xscale: 'auto',
-			yscale: 'auto',
-			ticks: 5,
-			title: 'a test title',
-			xlabel: 'a test x label',
-			ylabel: 'a test y label',
-			maxreadings: 10,
-		}};
 		
-		let init = false;
+		const _isstring = (value, notstring)=>{
 		
+			if (value ==  null || value == undefined){
+				return notnumber;
+			}
+			
+			if (typeof value === 'string' || value instanceof String){
+				if (value.trim() === "")
+					return notstring;
+				return value;
+			}
+		
+			if (parseString(value).trim() != ""){
+				return parseString(value);
+			}
+			
+			return notstring;
+		}
+		
+		const _isnumber = (value, notnumber)=>{
+			
+			if (value ==  null || value == undefined){
+				return notnumber;
+			}
+			
+			if (typeof value === 'string' || value instanceof String){
+				if (value.trim() === "")
+					return notnumber;
+				if (/^\d+$/.test(value))
+					return Number(value);
+			}
+			
+			if(!isNaN(value)){
+				return value;
+			}
+			
+			return notnumber;
+		}
+		
+		const _options = {
+			title: _isstring(n.title),	
+			xlabel: _isstring(n.xlabel),
+			ylabel: _isstring(n.ylabel),
+			yaxismin: _isnumber(n.yaxismin),
+			yaxismax: _isnumber(n.yaxismax),
+			ticks: _isnumber(n.ticks),
+			maxreadings: _isnumber(n.maxreadings),
+		};
+		
+		//remove all keys that are undefined.
+		const options = Object.keys(_options).reduce((acc, key)=>{
+			if (_options[key] != undefined){
+				acc[key] = _options[key];
+			}	
+			return acc;
+		},{});		
+		
+	
 		this.on('input', function (msg) {
         	
-        	if (!init){
-        		//node.send(initmsg);
-        		init = true;
-        	}  	
+          	var payload = {};
           	
-          	var payload = {}
-  			
-  			payload.id = msg.payload.id;
-  			payload.type = 'data';      	
+        	payload.options = options;
+        	
+        	payload.values = {
+        		id: msg.payload.id,
+        		type: 'data',
+        		dataid: Date.now(),
+        	};
+          	 
           	
-          	
-          	if (this.xtype && msg.name === this.xsource){
-          		payload.x = msg.payload[this.xtype];
+          	if (this.xtype && msg.type === this.xsource){
+          		payload.values.x = msg.payload[this.xtype];
           	}
           	
-          	if (this.ytype && msg.name === this.ysource){
-          		payload.y = Number(msg.payload[this.ytype]);
+          	if (this.ytype && msg.type === this.ysource){
+          		payload.values.y = Number(msg.payload[this.ytype]);
           	}
           	
+     		console.log(payload);
      		
           	node.send({type:this.chart, sourceId: node.id, payload:payload});
         

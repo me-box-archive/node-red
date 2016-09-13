@@ -125,11 +125,11 @@ module.exports = function(RED) {
           	msg.type = "list";
           	msg.sourceId = node.id;
           	
-          	msg.payload = {
+          	msg.payload = {values:{
           		timestamp: Date.now(),
           		keys:keys,
           		rows:rows,
-          	}
+          	}};
           	
           	node.send(msg);
         
