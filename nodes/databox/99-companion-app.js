@@ -47,6 +47,8 @@ module.exports = function(RED) {
         // copy "this" object in case we need it in context of callbacks of other functions.
         var node = this;
 		
+		var fallbackId = 1+Math.random()*42949433295).toString(16);
+		
 		let init = false;
         // respond to inputs....
         this.on('input', function (m) {
@@ -58,7 +60,7 @@ module.exports = function(RED) {
         		init = true;
         	}  	
 			msg.channel = node.appId;
-			msg.sourceId = m.sourceId;
+			msg.sourceId = m.sourceId || fallbackId;
 			msg.type = "data";
             msg.layout = node.layout;// || [[]];
             
