@@ -37,7 +37,7 @@ module.exports = function(RED) {
                 
                
                 node.send({
-                 	name : node.name || "bulbs";
+                 	name : node.name || "bulbs",
                 	type : "bulbs",
                 	payload : JSON.parse(message.toString()),
                 });                
