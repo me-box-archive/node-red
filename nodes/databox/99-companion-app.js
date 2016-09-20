@@ -15,14 +15,17 @@
  **/
 
 
-var client;
-var MQTT_APP_CHANNEL = 'webapp';
+var ipc;
 
 // Sample Node-RED node file
 var sendmessage = function(msg){
     try{
-	console.log(msg);
-        client.publish(MQTT_APP_CHANNEL, JSON.stringify(msg));
+	   console.log(msg);
+       ipc.of.webserver.emit(
+                        'message',  //any event or message type your server listens for 
+                        JSON.stringify(msg)
+                    )
+        //client.publish(MQTT_APP_CHANNEL, JSON.stringify(msg));
     }catch(err){
         console.log(err);
     }
@@ -30,8 +33,11 @@ var sendmessage = function(msg){
 
 module.exports = function(RED) {
     "use strict";
-    //var mqtt = require('mqtt');
-    
+   
+    ipc = require('node-ipc');
+    ipc.config.id   = 'webserver';
+    ipc.config.retry= 1500;
+   
     // require any external libraries we may need....
     //var foo = require("foo-library");
 
@@ -41,11 +47,18 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,n);
 		//'mqtt://mosquitto:1883'
         //client = mqtt.connect('mqtt://mosquitto:1883');
-        var client = new ws('ws://localhost/ipc');
+        ipc.connectTo(
+            'webserver',
+             function(){
+             ipc.of.webserver.on(
+                'connect',
+                function(){
+                    
+                }
+            );
+        });
 
-        client.on('open', function(){
-            console.log("connected to internal ws");
-        })
+       
         // Store local copies of the node configuration (as defined in the .html)
         this.appId = n.appId;
 		this.layout = n.layout;
