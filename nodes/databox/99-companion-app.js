@@ -30,7 +30,8 @@ var sendmessage = function(msg){
 
 module.exports = function(RED) {
     "use strict";
-    var mqtt = require('mqtt');
+    //var mqtt = require('mqtt');
+    
     // require any external libraries we may need....
     //var foo = require("foo-library");
 
@@ -39,8 +40,12 @@ module.exports = function(RED) {
         // Create a RED node
         RED.nodes.createNode(this,n);
 		//'mqtt://mosquitto:1883'
-        client = mqtt.connect('mqtt://mosquitto:1883');
+        //client = mqtt.connect('mqtt://mosquitto:1883');
+        var client = new ws('ws://localhost/ipc');
 
+        client.on('open', function(){
+            console.log("connected to internal ws");
+        })
         // Store local copies of the node configuration (as defined in the .html)
         this.appId = n.appId;
 		this.layout = n.layout;
