@@ -21,6 +21,7 @@ var MQTT_APP_CHANNEL = 'webapp';
 // Sample Node-RED node file
 var sendmessage = function(msg){
     try{
+	console.log(msg);
         client.publish(MQTT_APP_CHANNEL, JSON.stringify(msg));
     }catch(err){
         console.log(err);
