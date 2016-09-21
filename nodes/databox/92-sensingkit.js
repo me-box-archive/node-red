@@ -17,31 +17,46 @@
 // If you use this as a template, update the copyright with your own name.
 module.exports = function(RED) {
     "use strict";
-    
+
     var request = require('request');
+    var stream = require('stream');
+
+    var sensorStream = new stream.Writable();
+    var str = "";
+    sensorStream._write = function(chunk, encoding, done){
+        str += chunk.toString();
+        if (str.indexOf("\n") != -1){
+           console.log(str.replace("\n", ""));
+           str = "";
+        }
+        done();
+    }
+
     const ARBITER_TOKEN = process.env.ARBITER_TOKEN;
     const PORT = process.env.PORT || 8080;
-    
+
+    function startStreaming(macaroon){
+        request.post({url:'http://databox-driver-mobile.store:8080/api/light', form: {macaroon:macaroon}})
+               .pipe(sensorStream);
+    }
+
     function SensingKit(n) {
         // Create a RED node
         this.description = n.description;
-       	this.name = n.name;
+        this.name = n.name;
 
         RED.nodes.createNode(this,n);
         var node = this;
-		
-        console.log(`token is ${ARBITER_TOKEN}`);
-        
+
         const formData = {
                 token: ARBITER_TOKEN,
                 target: 'databox-driver-mobile.store'
         }
-
+        console.log(formData);
         console.log("posting for macaroon!");
 
-        request.post({url:'http://arbiter:8080/macaroon', formData: formData}, function optionalCallback(err, httpResponse, body) {
-            console.log(body);
-
+        request.post({url:'http://arbiter:8080/macaroon', form:formData}, function optionalCallback(err, httpResponse, body) {
+            startStreaming(body);
         });
 
     }
