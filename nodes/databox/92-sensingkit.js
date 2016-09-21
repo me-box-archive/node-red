@@ -16,31 +16,23 @@
 
 // If you use this as a template, update the copyright with your own name.
 module.exports = function(RED) {
+    
     "use strict";
+     var request = require('request');
 
-    var request = require('request');
-    var stream = require('stream');
-
-    var sensorStream = new stream.Writable();
-    var str = "";
-    sensorStream._write = function(chunk, encoding, done){
-        str += chunk.toString();
-        if (str.indexOf("\n") != -1){
-           console.log(str.replace("\n", ""));
-           str = "";
-        }
-        done();
-    }
-
-    const ARBITER_TOKEN = process.env.ARBITER_TOKEN;
-    const PORT = process.env.PORT || 8080;
-
-    function startStreaming(macaroon){
+    function startStreaming(macaroon, stream){
+        var formData = {macaroon:token};
         request.post({url:'http://databox-driver-mobile.store:8080/api/light', form: {macaroon:macaroon}})
-               .pipe(sensorStream);
+               .pipe(stream)
     }
 
     function SensingKit(n) {
+        
+        const ARBITER_TOKEN = process.env.ARBITER_TOKEN;
+        const PORT = process.env.PORT || 8080;
+
+        var stream = require('stream');
+        var sensorStream = new stream.Writable();
         // Create a RED node
         this.description = n.description;
         this.name = n.name;
@@ -48,20 +40,38 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,n);
         var node = this;
 
+        var str = "";
+        sensorStream._write = function(chunk, encoding, done){
+          str += chunk.toString();
+          console.log(node);
+          if (str.indexOf("\n") != -1){
+           const data = JSON.parse(`[${str.replace("\n","")}]`);
+           const [ts,value] = data;
+           node.send({
+                name: node.name || "sensingkit",
+                type: "sensingkit",
+                payload: {ts:ts, value:value},
+           });   
+           
+           str = "";
+          }
+          done();
+        }
+
         const formData = {
                 token: ARBITER_TOKEN,
                 target: 'databox-driver-mobile.store'
         }
-        console.log(formData);
-        console.log("posting for macaroon!");
-
-        request.post({url:'http://arbiter:8080/macaroon', form:formData}, function optionalCallback(err, httpResponse, body) {
-            startStreaming(body);
+                
+        request.post({url:'http://arbiter:8080/macaroon', form: formData},
+                function optionalCallback(err, httpResponse, body) {
+                    console.log(body);
+                    startStreaming(body,sensorStream);
         });
 
     }
 
-    // Register the node by name. This must be called before overriding any of the
+    // Register the node by name. This must be called beforeoverriding any of the
     // Node functions.
     RED.nodes.registerType("sensingkit",SensingKit);
 
