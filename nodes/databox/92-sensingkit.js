@@ -21,7 +21,7 @@ module.exports = function(RED) {
      var request = require('request');
 
     function startStreaming(macaroon, stream){
-        var formData = {macaroon:token};
+        
         request.post({url:'http://databox-driver-mobile.store:8080/api/light', form: {macaroon:macaroon}})
                .pipe(stream)
     }
@@ -52,7 +52,7 @@ module.exports = function(RED) {
                 type: "sensingkit",
                 payload: {ts:ts, value:value},
            });   
-           
+
            str = "";
           }
           done();
