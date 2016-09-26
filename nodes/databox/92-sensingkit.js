@@ -96,7 +96,7 @@ module.exports = function(RED) {
                 
         request.post({url:'http://arbiter:8080/macaroon', form: formData},
                 function optionalCallback(err, httpResponse, body) {
-                    //startStreaming(body,sensorStream,n.subtype);
+                    startStreaming(body,sensorStream,n.subtype);
         		}
         );
 
