@@ -20,9 +20,38 @@ module.exports = function(RED) {
     "use strict";
      var request = require('request');
 
-    function startStreaming(macaroon, stream){
+	function _seen(arr, value){
+		return arr.indexOf(value) != -1;
+	}
+	
+	function _format_payload(data, subtype){
+		
+		if (_seen(["bluetooth"], subtype)){
+			const [ts1, ts, name, address, rssi] = data;	
+			return {ts,name, address,rssi};
+		}
+		else if (_seen(["accelerometer", "linear-acceleration","magnetometer","gravity", "gyroscope"], subtype)){
+			const [ts,x,y,z] = data;
+			return {ts,x,y,z};
+		}
+		else if (_seen(["rotation"], subtype)){
+			const [ts,x,y,z,cos,headingAccuracy] = data;
+			return {ts,x,y,z,cos,headingAccuracy};
+		}
+		else if (_seen(["battery"], subtype)){
+			const [ts,charge,temperature,voltage,plugged,status,health] = data;
+			return {ts,charge,temperature,voltage,plugged,status,health};
+		}
+		else if (_seen(["audio-level", "light"], subtype)){
+			const [ts,value] = data;
+			return {ts, value};
+		}
+		return {};
+	}
+	
+   	function startStreaming(macaroon, stream, subtype){
         
-        request.post({url:'http://databox-driver-mobile.store:8080/api/light', form: {macaroon:macaroon}})
+        request.post({url:`http://databox-driver-mobile.store:8080/api/${subtype}`, form: {macaroon:macaroon}})
                .pipe(stream)
     }
 
@@ -36,21 +65,23 @@ module.exports = function(RED) {
         // Create a RED node
         this.description = n.description;
         this.name = n.name;
-
+		
+		
         RED.nodes.createNode(this,n);
         var node = this;
 
         var str = "";
         sensorStream._write = function(chunk, encoding, done){
           str += chunk.toString();
-          console.log(node);
+
           if (str.indexOf("\n") != -1){
            const data = JSON.parse(`[${str.replace("\n","")}]`);
-           const [ts,value] = data;
+           const payload = _format_payload(data, n.subtype);
+           
            node.send({
                 name: node.name || "sensingkit",
                 type: "sensingkit",
-                payload: {ts:ts, value:value},
+                payload: payload,
            });   
 
            str = "";
@@ -65,9 +96,9 @@ module.exports = function(RED) {
                 
         request.post({url:'http://arbiter:8080/macaroon', form: formData},
                 function optionalCallback(err, httpResponse, body) {
-                    console.log(body);
-                    startStreaming(body,sensorStream);
-        });
+                    //startStreaming(body,sensorStream,n.subtype);
+        		}
+        );
 
     }
 
