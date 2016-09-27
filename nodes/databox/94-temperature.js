@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-
 // If you use this as a template, update the copyright with your own name.
+
 module.exports = function(RED) {
     "use strict";
     var mqtt = require('mqtt');
@@ -27,7 +27,6 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,n);
 		//mosquitto
         var client = mqtt.connect('mqtt://mosquitto:1883');
-       
         var node = this;
 		
         client.on('connect', () => {  

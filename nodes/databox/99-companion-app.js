@@ -20,7 +20,7 @@ var ipc;
 // Sample Node-RED node file
 var sendmessage = function(msg){
     try{
-	   console.log(msg);
+	   //console.log(msg);
        ipc.of.webserver.emit(
                         'message',  //any event or message type your server listens for 
                         JSON.stringify(msg)

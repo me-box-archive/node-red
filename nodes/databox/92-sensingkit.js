@@ -28,36 +28,38 @@ module.exports = function(RED) {
 		
 		if (_seen(["bluetooth"], subtype)){
 			const [ts1, ts, name, address, rssi] = data;	
-			return {ts,name, address,rssi};
+			return {id:subtype, ts,name, address,rssi};
 		}
 		else if (_seen(["accelerometer", "linear-acceleration","magnetometer","gravity", "gyroscope"], subtype)){
 			const [ts,x,y,z] = data;
-			return {ts,x,y,z};
+			return {id:subtype,ts,x,y,z};
 		}
 		else if (_seen(["rotation"], subtype)){
 			const [ts,x,y,z,cos,headingAccuracy] = data;
-			return {ts,x,y,z,cos,headingAccuracy};
+			return {id:subtype,ts,x,y,z,cos,headingAccuracy};
 		}
 		else if (_seen(["battery"], subtype)){
 			const [ts,charge,temperature,voltage,plugged,status,health] = data;
-			return {ts,charge,temperature,voltage,plugged,status,health};
+			return {id:subtype,ts,charge,temperature,voltage,plugged,status,health};
 		}
 		else if (_seen(["audio-level", "light"], subtype)){
 			const [ts,value] = data;
-			return {ts, value};
+			return {id:subtype,ts, value};
 		}
 		return {};
 	}
 	
    	function startStreaming(macaroon, stream, subtype){
-        
-        request.post({url:`http://databox-driver-mobile.store:8080/api/${subtype}`, form: {macaroon:macaroon}})
+      
+        const url = `http://databox-driver-mobile.store:8080/api/${subtype}`;  
+        //const url = `http://localhost:8087/api/${subtype}`;
+        request.post({url:url, form: {macaroon:macaroon}})
                .pipe(stream)
     }
 
     function SensingKit(n) {
-        
-        const ARBITER_TOKEN = process.env.ARBITER_TOKEN;
+       
+        const ARBITER_TOKEN = process.env.ARBITER_TOKEN || "";
         const PORT = process.env.PORT || 8080;
 
         var stream = require('stream');
@@ -66,40 +68,43 @@ module.exports = function(RED) {
         this.description = n.description;
         this.name = n.name;
 		
-		
         RED.nodes.createNode(this,n);
         var node = this;
-
         var str = "";
+       
         sensorStream._write = function(chunk, encoding, done){
           str += chunk.toString();
-
+		  
           if (str.indexOf("\n") != -1){
-           const data = JSON.parse(`[${str.replace("\n","")}]`);
-           const payload = _format_payload(data, n.subtype);
-           
-           node.send({
-                name: node.name || "sensingkit",
-                type: "sensingkit",
-                payload: payload,
-           });   
+          	try{
+			   const data = JSON.parse(`[${str.replace("\n","")}]`);
+			   const payload = _format_payload(data, n.subtype);
+		   
+			   node.send({
+					name: node.name || "sensingkit",
+					type: "sensingkit",
+					payload: payload,
+			   });   
 
-           str = "";
+			   str = "";
+			}
+			catch(err){
+				console.log(err);
+			}
           }
           done();
         }
-
+        
         const formData = {
                 token: ARBITER_TOKEN,
                 target: 'databox-driver-mobile.store'
         }
-                
+        
         request.post({url:'http://arbiter:8080/macaroon', form: formData},
                 function optionalCallback(err, httpResponse, body) {
                     startStreaming(body,sensorStream,n.subtype);
         		}
         );
-
     }
 
     // Register the node by name. This must be called beforeoverriding any of the
